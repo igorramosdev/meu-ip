@@ -1,6 +1,6 @@
 /**
- * Meu IP Webapp - Script Principal
- * Gerencia a exibição de informações de IP e histórico usando localStorage
+ * Meu IP PWA - Script Principal
+ * Gerencia a exibição de informações de IP, histórico e funcionalidades PWA
  */
 
 // Configurações da API
@@ -26,6 +26,110 @@ const elements = {
 // Estado da aplicação
 let currentIpData = null;
 let isLoading = false;
+let serviceWorkerRegistration = null;
+
+/**
+ * Registra o Service Worker para funcionalidades PWA
+ */
+async function registerServiceWorker() {
+    if ('serviceWorker' in navigator) {
+        try {
+            serviceWorkerRegistration = await navigator.serviceWorker.register('/service-worker.js');
+            console.log('Service Worker registrado com sucesso:', serviceWorkerRegistration);
+            
+            // Escuta atualizações do Service Worker
+            serviceWorkerRegistration.addEventListener('updatefound', () => {
+                const newWorker = serviceWorkerRegistration.installing;
+                newWorker.addEventListener('statechange', () => {
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        showUpdateNotification();
+                    }
+                });
+            });
+            
+            // Escuta mensagens do Service Worker
+            navigator.serviceWorker.addEventListener('message', handleServiceWorkerMessage);
+            
+            return serviceWorkerRegistration;
+            
+        } catch (error) {
+            console.error('Erro ao registrar Service Worker:', error);
+            return null;
+        }
+    }
+    return null;
+}
+
+/**
+ * Manipula mensagens recebidas do Service Worker
+ */
+function handleServiceWorkerMessage(event) {
+    const { type, data } = event.data;
+    
+    switch (type) {
+        case 'IP_UPDATE':
+            if (data && data.ip !== currentIpData?.ip) {
+                showIPChangeNotification(data);
+            }
+            break;
+        case 'VERSION':
+            console.log('Versão do Service Worker:', data.version);
+            break;
+        case 'CACHE_CLEARED':
+            if (data.success) {
+                showNotification('Cache limpo com sucesso!', 'success');
+            } else {
+                showNotification('Erro ao limpar cache', 'error');
+            }
+            break;
+    }
+}
+
+/**
+ * Mostra notificação de atualização disponível
+ */
+function showUpdateNotification() {
+    if (confirm('Uma nova versão está disponível. Deseja atualizar?')) {
+        if (navigator.serviceWorker.controller) {
+            navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
+            window.location.reload();
+        }
+    }
+}
+
+/**
+ * Mostra notificação de mudança de IP
+ */
+function showIPChangeNotification(newData) {
+    if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('IP Alterado!', {
+            body: `Seu novo IP é: ${newData.ip}`,
+            icon: '/icon-192x192.png',
+            tag: 'ip-change',
+            requireInteraction: false
+        });
+    }
+    
+    showNotification(`IP alterado para: ${newData.ip}`, 'info');
+}
+
+/**
+ * Solicita permissão para notificações
+ */
+async function requestNotificationPermission() {
+    if ('Notification' in window && Notification.permission === 'default') {
+        try {
+            const permission = await Notification.requestPermission();
+            if (permission === 'granted') {
+                showNotification('Notificações ativadas!', 'success');
+                return true;
+            }
+        } catch (error) {
+            console.error('Erro ao solicitar permissão para notificações:', error);
+        }
+    }
+    return false;
+}
 
 /**
  * Classe para gerenciar o histórico de IPs no localStorage
@@ -33,12 +137,9 @@ let isLoading = false;
 class IPHistoryManager {
     constructor() {
         this.storageKey = 'ip_history';
-        this.maxEntries = 50; // Limitar o histórico para evitar problemas de performance
+        this.maxEntries = 50;
     }
 
-    /**
-     * Recupera o histórico do localStorage
-     */
     getHistory() {
         try {
             const history = localStorage.getItem(this.storageKey);
@@ -49,9 +150,6 @@ class IPHistoryManager {
         }
     }
 
-    /**
-     * Salva o histórico no localStorage
-     */
     saveHistory(history) {
         try {
             localStorage.setItem(this.storageKey, JSON.stringify(history));
@@ -60,14 +158,10 @@ class IPHistoryManager {
         }
     }
 
-    /**
-     * Adiciona ou atualiza uma entrada no histórico
-     */
     addEntry(ipData) {
         const history = this.getHistory();
         const timestamp = new Date().toISOString();
         
-        // Procura se o IP já existe no histórico
         const existingIndex = history.findIndex(entry => entry.ip === ipData.ip);
         
         const newEntry = {
@@ -82,28 +176,21 @@ class IPHistoryManager {
         };
 
         if (existingIndex !== -1) {
-            // Atualiza a entrada existente
             history[existingIndex] = { ...history[existingIndex], ...newEntry };
         } else {
-            // Adiciona nova entrada no início
             history.unshift(newEntry);
         }
 
-        // Limita o número de entradas
         if (history.length > this.maxEntries) {
             history.splice(this.maxEntries);
         }
 
-        // Ordena por data mais recente
         history.sort((a, b) => new Date(b.lastSeen) - new Date(a.lastSeen));
 
         this.saveHistory(history);
         return history;
     }
 
-    /**
-     * Limpa todo o histórico
-     */
     clearHistory() {
         try {
             localStorage.removeItem(this.storageKey);
@@ -123,6 +210,12 @@ function toggleLoading(show) {
     isLoading = show;
     elements.loadingOverlay.classList.toggle('active', show);
     elements.refreshBtn.disabled = show;
+    
+    if (show) {
+        elements.refreshBtn.innerHTML = '⏳ Carregando...';
+    } else {
+        elements.refreshBtn.innerHTML = '🔄 Atualizar IP';
+    }
 }
 
 /**
@@ -181,7 +274,6 @@ async function fetchIPInfo() {
         
         const data = await response.json();
         
-        // Valida se os dados essenciais estão presentes
         if (!data.ip) {
             throw new Error('Dados de IP inválidos recebidos da API');
         }
@@ -233,7 +325,6 @@ function updateHistoryTable() {
     const history = historyManager.getHistory();
     const tbody = elements.historyTableBody;
     
-    // Limpa a tabela
     tbody.innerHTML = '';
     
     if (history.length === 0) {
@@ -245,7 +336,6 @@ function updateHistoryTable() {
         return;
     }
     
-    // Adiciona as entradas do histórico
     history.forEach((entry, index) => {
         const row = document.createElement('tr');
         row.className = 'fade-in';
@@ -273,6 +363,17 @@ async function copyIPToClipboard() {
     try {
         await navigator.clipboard.writeText(currentIpData.ip);
         showNotification('IP copiado para a área de transferência!', 'success');
+        
+        // Feedback visual no botão
+        const originalText = elements.copyIpBtn.innerHTML;
+        elements.copyIpBtn.innerHTML = '✅ Copiado!';
+        elements.copyIpBtn.disabled = true;
+        
+        setTimeout(() => {
+            elements.copyIpBtn.innerHTML = originalText;
+            elements.copyIpBtn.disabled = false;
+        }, 2000);
+        
     } catch (error) {
         console.error('Erro ao copiar IP:', error);
         
@@ -297,7 +398,6 @@ async function copyIPToClipboard() {
  * Exibe uma notificação temporária
  */
 function showNotification(message, type = 'info') {
-    // Remove notificações existentes
     const existingNotifications = document.querySelectorAll('.notification');
     existingNotifications.forEach(notification => notification.remove());
     
@@ -305,39 +405,39 @@ function showNotification(message, type = 'info') {
     notification.className = `notification notification-${type}`;
     notification.textContent = message;
     
-    // Estilos inline para a notificação
     Object.assign(notification.style, {
         position: 'fixed',
         top: '20px',
         right: '20px',
         padding: '12px 24px',
-        borderRadius: '8px',
+        borderRadius: '12px',
         color: 'white',
-        fontWeight: '500',
-        zIndex: '1001',
+        fontWeight: '600',
+        fontSize: '14px',
+        zIndex: '10001',
         transform: 'translateX(100%)',
-        transition: 'transform 0.3s ease-in-out',
-        maxWidth: '300px',
-        wordWrap: 'break-word'
+        transition: 'transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+        maxWidth: '320px',
+        wordWrap: 'break-word',
+        boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)',
+        backdropFilter: 'blur(10px)'
     });
     
-    // Cores baseadas no tipo
     const colors = {
-        success: '#059669',
-        error: '#dc2626',
-        info: '#2563eb'
+        success: 'linear-gradient(135deg, #10b981, #059669)',
+        error: 'linear-gradient(135deg, #ef4444, #dc2626)',
+        info: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+        warning: 'linear-gradient(135deg, #f59e0b, #d97706)'
     };
     
-    notification.style.backgroundColor = colors[type] || colors.info;
+    notification.style.background = colors[type] || colors.info;
     
     document.body.appendChild(notification);
     
-    // Anima a entrada
     setTimeout(() => {
         notification.style.transform = 'translateX(0)';
     }, 100);
     
-    // Remove após 3 segundos
     setTimeout(() => {
         notification.style.transform = 'translateX(100%)';
         setTimeout(() => {
@@ -345,7 +445,7 @@ function showNotification(message, type = 'info') {
                 notification.remove();
             }
         }, 300);
-    }, 3000);
+    }, 4000);
 }
 
 /**
@@ -366,21 +466,23 @@ async function loadIPInfo() {
     try {
         const ipData = await fetchIPInfo();
         
-        // Atualiza a exibição
         updateIPDisplay(ipData);
-        
-        // Adiciona ao histórico
         historyManager.addEntry(ipData);
-        
-        // Atualiza a tabela de histórico
         updateHistoryTable();
+        
+        // Envia dados para o Service Worker
+        if (navigator.serviceWorker.controller) {
+            navigator.serviceWorker.controller.postMessage({
+                type: 'CACHE_IP_DATA',
+                data: ipData
+            });
+        }
         
         showNotification('Informações atualizadas com sucesso!', 'success');
         
     } catch (error) {
         console.error('Erro ao carregar informações do IP:', error);
         
-        // Exibe mensagem de erro amigável
         elements.currentIp.innerHTML = '<span class="error">Erro ao carregar</span>';
         elements.reverseIp.innerHTML = '<span class="error">Erro ao carregar</span>';
         
@@ -389,13 +491,81 @@ async function loadIPInfo() {
 }
 
 /**
- * Adiciona estilos CSS dinamicamente para notificações
+ * Verifica mudanças de IP periodicamente
  */
-function addNotificationStyles() {
+async function checkIPChange() {
+    if (isLoading || !navigator.onLine) return;
+    
+    try {
+        const response = await fetch(`${API_CONFIG.baseUrl}/ip?token=${API_CONFIG.token}`);
+        const ip = await response.text();
+        
+        if (currentIpData && currentIpData.ip !== ip) {
+            showNotification(`IP alterado para: ${ip}`, 'info');
+            await loadIPInfo();
+        }
+    } catch (error) {
+        console.log('Erro na verificação silenciosa de IP:', error);
+    }
+}
+
+/**
+ * Configura os event listeners
+ */
+function setupEventListeners() {
+    // Botão de atualizar
+    elements.refreshBtn.addEventListener('click', loadIPInfo);
+    
+    // Botão de copiar IP
+    elements.copyIpBtn.addEventListener('click', copyIPToClipboard);
+    
+    // Botão de limpar histórico
+    elements.clearHistoryBtn.addEventListener('click', clearHistory);
+    
+    // Atalhos de teclado
+    document.addEventListener('keydown', (event) => {
+        if ((event.ctrlKey || event.metaKey) && event.key === 'r') {
+            event.preventDefault();
+            if (!isLoading) {
+                loadIPInfo();
+            }
+        }
+        
+        if ((event.ctrlKey || event.metaKey) && event.key === 'c' && !window.getSelection().toString()) {
+            if (currentIpData && currentIpData.ip) {
+                event.preventDefault();
+                copyIPToClipboard();
+            }
+        }
+    });
+    
+    // Detecta mudanças de conectividade
+    window.addEventListener('online', () => {
+        showNotification('Conexão restaurada!', 'success');
+        setTimeout(loadIPInfo, 1000);
+    });
+    
+    window.addEventListener('offline', () => {
+        showNotification('Você está offline', 'warning');
+    });
+    
+    // Detecta quando a aba fica visível novamente
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && navigator.onLine) {
+            setTimeout(checkIPChange, 1000);
+        }
+    });
+}
+
+/**
+ * Adiciona estilos CSS dinamicamente
+ */
+function addDynamicStyles() {
     const style = document.createElement('style');
     style.textContent = `
         .notification {
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
         }
         
         .error {
@@ -420,55 +590,20 @@ function addNotificationStyles() {
 }
 
 /**
- * Configura os event listeners
- */
-function setupEventListeners() {
-    // Botão de atualizar
-    elements.refreshBtn.addEventListener('click', loadIPInfo);
-    
-    // Botão de copiar IP
-    elements.copyIpBtn.addEventListener('click', copyIPToClipboard);
-    
-    // Botão de limpar histórico
-    elements.clearHistoryBtn.addEventListener('click', clearHistory);
-    
-    // Atalhos de teclado
-    document.addEventListener('keydown', (event) => {
-        // Ctrl/Cmd + R para atualizar
-        if ((event.ctrlKey || event.metaKey) && event.key === 'r') {
-            event.preventDefault();
-            if (!isLoading) {
-                loadIPInfo();
-            }
-        }
-        
-        // Ctrl/Cmd + C para copiar IP (quando não há seleção)
-        if ((event.ctrlKey || event.metaKey) && event.key === 'c' && !window.getSelection().toString()) {
-            if (currentIpData && currentIpData.ip) {
-                event.preventDefault();
-                copyIPToClipboard();
-            }
-        }
-    });
-    
-    // Detecta mudanças de conectividade
-    window.addEventListener('online', () => {
-        showNotification('Conexão restaurada. Atualizando informações...', 'info');
-        setTimeout(loadIPInfo, 1000);
-    });
-    
-    window.addEventListener('offline', () => {
-        showNotification('Conexão perdida. Algumas funcionalidades podem não funcionar.', 'error');
-    });
-}
-
-/**
  * Inicializa a aplicação
  */
 async function initApp() {
     try {
-        // Adiciona estilos para notificações
-        addNotificationStyles();
+        console.log('🌐 Meu IP PWA - Iniciando aplicação...');
+        
+        // Registra o Service Worker
+        await registerServiceWorker();
+        
+        // Solicita permissão para notificações
+        await requestNotificationPermission();
+        
+        // Adiciona estilos dinâmicos
+        addDynamicStyles();
         
         // Configura event listeners
         setupEventListeners();
@@ -479,7 +614,10 @@ async function initApp() {
         // Carrega as informações do IP atual
         await loadIPInfo();
         
-        console.log('Aplicação inicializada com sucesso');
+        // Configura verificação periódica de mudança de IP
+        setInterval(checkIPChange, 5 * 60 * 1000); // A cada 5 minutos
+        
+        console.log('✅ Aplicação PWA inicializada com sucesso!');
         
     } catch (error) {
         console.error('Erro ao inicializar aplicação:', error);
@@ -500,6 +638,9 @@ window.IPApp = {
     clearHistory,
     copyIPToClipboard,
     historyManager,
-    currentIpData: () => currentIpData
+    currentIpData: () => currentIpData,
+    serviceWorkerRegistration: () => serviceWorkerRegistration
 };
+
+console.log('📱 Meu IP PWA - Script carregado!');
 

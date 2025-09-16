@@ -5,30 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <!-- SEO Meta Tags -->
-    <title>Meu IP - Descubra seu endereço IP e histórico de conexões</title>
-    <meta name="description" content="Descubra seu endereço IP atual, IP reverso e acompanhe o histórico de suas conexões com informações detalhadas sobre provedores de internet.">
-    <meta name="keywords" content="meu ip, endereço ip, ip reverso, histórico ip, provedor internet, ipinfo">
-    <meta name="author" content="Meu IP Webapp">
+    <title>Meu IP - Descubra seu endereço IP, localização e histórico de conexões | Ferramenta gratuita</title>
+    <meta name="description" content="Descubra seu endereço IP atual, IP reverso, localização geográfica e acompanhe o histórico completo de suas conexões. Ferramenta gratuita, segura e com informações detalhadas sobre provedores de internet.">
+    <meta name="keywords" content="meu ip, endereço ip, ip reverso, localização ip, histórico ip, provedor internet, ipinfo, geolocalização, dns reverso, whois">
+    <meta name="author" content="Meu IP - Ferramenta de Análise de IP">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="pt-BR">
     
     <!-- Open Graph Tags -->
-    <meta property="og:title" content="Meu IP - Descubra seu endereço IP e histórico de conexões">
-    <meta property="og:description" content="Descubra seu endereço IP atual, IP reverso e acompanhe o histórico de suas conexões com informações detalhadas sobre provedores de internet.">
+    <meta property="og:title" content="Meu IP - Descubra seu endereço IP, localização e histórico de conexões">
+    <meta property="og:description" content="Ferramenta gratuita para descobrir seu IP atual, IP reverso, localização geográfica e acompanhar o histórico de suas conexões com informações detalhadas.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://meu-ip.com">
     <meta property="og:image" content="https://meu-ip.com/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
     <meta property="og:locale" content="pt_BR">
+    <meta property="og:site_name" content="Meu IP">
     
     <!-- Twitter Card Tags -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Meu IP - Descubra seu endereço IP e histórico de conexões">
-    <meta name="twitter:description" content="Descubra seu endereço IP atual, IP reverso e acompanhe o histórico de suas conexões com informações detalhadas sobre provedores de internet.">
+    <meta name="twitter:title" content="Meu IP - Descubra seu endereço IP, localização e histórico de conexões">
+    <meta name="twitter:description" content="Ferramenta gratuita para descobrir seu IP atual, IP reverso, localização geográfica e acompanhar o histórico de suas conexões.">
     <meta name="twitter:image" content="https://meu-ip.com/og-image.png">
+    <meta name="twitter:creator" content="@meuip">
     
     <!-- Canonical URL -->
     <link rel="canonical" href="https://meu-ip.com">
     
-    <!-- Favicon -->
+    <!-- Favicon e Icons -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#6366f1">
     
     <!-- Stylesheet -->
     <link rel="stylesheet" href="style.css">
@@ -37,10 +48,21 @@
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
-        "@type": "WebSite",
+        "@type": "WebApplication",
         "name": "Meu IP",
-        "description": "Descubra seu endereço IP atual, IP reverso e acompanhe o histórico de suas conexões",
+        "description": "Ferramenta gratuita para descobrir seu endereço IP atual, IP reverso, localização geográfica e acompanhar o histórico de suas conexões",
         "url": "https://meu-ip.com",
+        "applicationCategory": "UtilityApplication",
+        "operatingSystem": "Any",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "BRL"
+        },
+        "author": {
+            "@type": "Organization",
+            "name": "Meu IP"
+        },
         "potentialAction": {
             "@type": "SearchAction",
             "target": "https://meu-ip.com/?q={search_term_string}",
@@ -51,9 +73,9 @@
 </head>
 <body>
     <!-- Header -->
-    <header class="header">
+    <header class="header" role="banner">
         <div class="container">
-            <h1 class="logo">🌐 Meu IP</h1>
+            <h1 class="logo">Meu IP</h1>
             <nav class="nav" role="navigation" aria-label="Navegação principal">
                 <button id="refreshBtn" class="btn btn-primary" aria-label="Atualizar informações do IP">
                     🔄 Atualizar IP
@@ -61,6 +83,17 @@
             </nav>
         </div>
     </header>
+
+    <!-- Hero Section -->
+    <section class="hero" role="banner">
+        <div class="container">
+            <h1 class="hero-title">Descubra Seu IP Instantaneamente</h1>
+            <p class="hero-subtitle">
+                Obtenha informações completas sobre seu endereço IP, localização geográfica, 
+                provedor de internet e mantenha um histórico detalhado de suas conexões.
+            </p>
+        </div>
+    </section>
 
     <!-- Main Content -->
     <main class="main" role="main">
@@ -71,7 +104,7 @@
                 
                 <!-- Current IP Display -->
                 <div class="ip-display">
-                    <div class="ip-card">
+                    <div class="glass-card ip-card">
                         <h3 class="ip-label">O meu IP é:</h3>
                         <div class="ip-value" id="currentIp" aria-live="polite">
                             <span class="loading">Carregando...</span>
@@ -81,7 +114,7 @@
                         </button>
                     </div>
                     
-                    <div class="ip-card">
+                    <div class="glass-card ip-card">
                         <h3 class="ip-label">IP Reverso:</h3>
                         <div class="ip-value" id="reverseIp" aria-live="polite">
                             <span class="loading">Carregando...</span>
@@ -90,14 +123,16 @@
                 </div>
 
                 <!-- Additional IP Info -->
-                <div class="ip-details" id="ipDetails" aria-live="polite">
-                    <div class="detail-item">
-                        <span class="detail-label">Provedor:</span>
-                        <span class="detail-value" id="provider">—</span>
+                <div class="ip-details">
+                    <div class="glass-card detail-card">
+                        <span class="detail-icon">🏢</span>
+                        <div class="detail-label">Provedor</div>
+                        <div class="detail-value" id="provider">—</div>
                     </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Localização:</span>
-                        <span class="detail-value" id="location">—</span>
+                    <div class="glass-card detail-card">
+                        <span class="detail-icon">📍</span>
+                        <div class="detail-label">Localização</div>
+                        <div class="detail-value" id="location">—</div>
                     </div>
                 </div>
             </section>
@@ -105,7 +140,7 @@
             <!-- History Section -->
             <section class="history-section" aria-labelledby="history-title">
                 <div class="section-header">
-                    <h2 id="history-title">Seu Histórico de IPs e Provedores</h2>
+                    <h2 id="history-title" class="section-title">Seu Histórico de IPs e Provedores</h2>
                     <button id="clearHistoryBtn" class="btn btn-danger" aria-label="Limpar histórico de IPs">
                         🗑️ Limpar Histórico
                     </button>
@@ -128,19 +163,141 @@
                     </table>
                 </div>
             </section>
+
+            <!-- Informational Content for SEO -->
+            <section class="info-section" aria-labelledby="info-title">
+                <div class="container">
+                    <h2 id="info-title" class="section-title">Entenda Melhor Seu Endereço IP</h2>
+                    <div class="info-grid">
+                        <article class="info-card">
+                            <span class="info-card-icon">🌐</span>
+                            <h3 class="info-card-title">O que é um Endereço IP?</h3>
+                            <p class="info-card-text">
+                                Um endereço IP (Internet Protocol) é um identificador único atribuído a cada dispositivo 
+                                conectado à internet. Funciona como um "endereço postal" digital, permitindo que os dados 
+                                sejam enviados e recebidos corretamente entre dispositivos na rede mundial.
+                            </p>
+                        </article>
+
+                        <article class="info-card">
+                            <span class="info-card-icon">🔄</span>
+                            <h3 class="info-card-title">Para que serve o IP Reverso?</h3>
+                            <p class="info-card-text">
+                                O IP reverso (DNS reverso) converte um endereço IP em um nome de domínio legível. 
+                                É útil para identificar o hostname associado ao seu IP, verificar a reputação do servidor 
+                                e para fins de segurança e diagnóstico de rede.
+                            </p>
+                        </article>
+
+                        <article class="info-card">
+                            <span class="info-card-icon">📊</span>
+                            <h3 class="info-card-title">Histórico de Conexões</h3>
+                            <p class="info-card-text">
+                                Nosso sistema mantém um registro local das suas conexões, permitindo acompanhar mudanças 
+                                no seu IP ao longo do tempo. Útil para identificar quando você muda de rede, provedor 
+                                ou localização geográfica.
+                            </p>
+                        </article>
+
+                        <article class="info-card">
+                            <span class="info-card-icon">🔒</span>
+                            <h3 class="info-card-title">Privacidade e Segurança</h3>
+                            <p class="info-card-text">
+                                Todas as informações são processadas localmente no seu navegador. Não armazenamos 
+                                seus dados em nossos servidores, garantindo total privacidade. O histórico fica 
+                                apenas no seu dispositivo e pode ser limpo a qualquer momento.
+                            </p>
+                        </article>
+
+                        <article class="info-card">
+                            <span class="info-card-icon">🌍</span>
+                            <h3 class="info-card-title">Geolocalização por IP</h3>
+                            <p class="info-card-text">
+                                Através do seu IP, é possível determinar sua localização aproximada, incluindo país, 
+                                estado e cidade. Essa informação é baseada nos registros dos provedores de internet 
+                                e pode variar em precisão dependendo da região.
+                            </p>
+                        </article>
+
+                        <article class="info-card">
+                            <span class="info-card-icon">⚡</span>
+                            <h3 class="info-card-title">Ferramenta Gratuita</h3>
+                            <p class="info-card-text">
+                                Nossa ferramenta é completamente gratuita e não requer cadastro. Oferecemos informações 
+                                precisas e atualizadas sobre seu IP, utilizando APIs confiáveis e respeitando 
+                                sua privacidade em todas as consultas.
+                            </p>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FAQ Section for SEO -->
+            <section class="info-section" aria-labelledby="faq-title">
+                <div class="container">
+                    <h2 id="faq-title" class="section-title">Perguntas Frequentes</h2>
+                    <div class="info-grid">
+                        <article class="info-card">
+                            <h3 class="info-card-title">Meu IP pode mudar?</h3>
+                            <p class="info-card-text">
+                                Sim, seu IP pode mudar dependendo do tipo de conexão. IPs dinâmicos mudam periodicamente, 
+                                enquanto IPs estáticos permanecem fixos. A maioria dos usuários domésticos possui IP dinâmico.
+                            </p>
+                        </article>
+
+                        <article class="info-card">
+                            <h3 class="info-card-title">É seguro verificar meu IP online?</h3>
+                            <p class="info-card-text">
+                                Sim, verificar seu IP é seguro. Essa informação já é visível para todos os sites que você visita. 
+                                Nossa ferramenta apenas exibe o que já é público, sem comprometer sua segurança.
+                            </p>
+                        </article>
+
+                        <article class="info-card">
+                            <h3 class="info-card-title">Por que preciso saber meu IP?</h3>
+                            <p class="info-card-text">
+                                Conhecer seu IP é útil para configurar redes, solucionar problemas de conexão, 
+                                configurar servidores, jogos online e verificar se você está usando VPN ou proxy.
+                            </p>
+                        </article>
+                    </div>
+                </div>
+            </section>
         </div>
     </main>
 
     <!-- Footer -->
     <footer class="footer" role="contentinfo">
         <div class="container">
-            <p class="footer-text">
-                <strong>Privacidade:</strong> Suas informações de IP são armazenadas apenas localmente no seu navegador. 
-                Nenhum dado é enviado ou armazenado permanentemente em nossos servidores.
-            </p>
-            <p class="footer-text">
-                Powered by <a href="https://ipinfo.io" target="_blank" rel="noopener noreferrer">IPinfo.io</a>
-            </p>
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Sobre o Meu IP</h3>
+                    <p class="footer-text">
+                        Ferramenta gratuita e confiável para descobrir informações sobre seu endereço IP, 
+                        localização geográfica e histórico de conexões.
+                    </p>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Privacidade</h3>
+                    <p class="footer-text">
+                        <strong>100% Privado:</strong> Suas informações de IP são armazenadas apenas localmente 
+                        no seu navegador. Nenhum dado é enviado ou armazenado permanentemente em nossos servidores.
+                    </p>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Tecnologia</h3>
+                    <p class="footer-text">
+                        Powered by <a href="https://ipinfo.io" target="_blank" rel="noopener noreferrer">IPinfo.io</a> - 
+                        API confiável para informações precisas de geolocalização e dados de rede.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 Meu IP. Todos os direitos reservados. Ferramenta gratuita para análise de endereços IP.</p>
+            </div>
         </div>
     </footer>
 
