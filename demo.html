@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Meta Tags -->
+    <title>Meu IP - Demonstração - Descubra seu endereço IP e histórico de conexões</title>
+    <meta name="description" content="Demonstração do webapp Meu IP - Descubra seu endereço IP atual, IP reverso e acompanhe o histórico de suas conexões com informações detalhadas sobre provedores de internet.">
+    <meta name="keywords" content="meu ip, endereço ip, ip reverso, histórico ip, provedor internet, ipinfo, demo">
+    <meta name="author" content="Meu IP Webapp">
+    
+    <!-- Open Graph Tags -->
+    <meta property="og:title" content="Meu IP - Demonstração - Descubra seu endereço IP e histórico de conexões">
+    <meta property="og:description" content="Demonstração do webapp Meu IP - Descubra seu endereço IP atual, IP reverso e acompanhe o histórico de suas conexões com informações detalhadas sobre provedores de internet.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://meu-ip.com/demo">
+    <meta property="og:image" content="https://meu-ip.com/og-image.png">
+    <meta property="og:locale" content="pt_BR">
+    
+    <!-- Twitter Card Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Meu IP - Demonstração - Descubra seu endereço IP e histórico de conexões">
+    <meta name="twitter:description" content="Demonstração do webapp Meu IP - Descubra seu endereço IP atual, IP reverso e acompanhe o histórico de suas conexões com informações detalhadas sobre provedores de internet.">
+    <meta name="twitter:image" content="https://meu-ip.com/og-image.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://meu-ip.com/demo">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- JSON-LD Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Meu IP - Demonstração",
+        "description": "Demonstração do webapp para descobrir seu endereço IP atual, IP reverso e acompanhar o histórico de suas conexões",
+        "url": "https://meu-ip.com/demo",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://meu-ip.com/?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+        }
+    }
+    </script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">🌐 Meu IP <span style="font-size: 0.6em; color: #64748b;">(Demo)</span></h1>
+            <nav class="nav" role="navigation" aria-label="Navegação principal">
+                <button id="refreshBtn" class="btn btn-primary" aria-label="Atualizar informações do IP">
+                    🔄 Atualizar IP
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main" role="main">
+        <div class="container">
+            <!-- Demo Notice -->
+            <div style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; padding: 1rem; border-radius: 12px; margin-bottom: 2rem; text-align: center;">
+                <h3 style="margin: 0 0 0.5rem 0; font-size: 1.125rem;">🎯 Modo Demonstração</h3>
+                <p style="margin: 0; opacity: 0.9;">Esta é uma demonstração com dados simulados para mostrar como o webapp funciona.</p>
+            </div>
+
+            <!-- IP Information Section -->
+            <section class="ip-section" aria-labelledby="ip-info-title">
+                <h2 id="ip-info-title" class="sr-only">Informações do seu IP</h2>
+                
+                <!-- Current IP Display -->
+                <div class="ip-display">
+                    <div class="ip-card">
+                        <h3 class="ip-label">O meu IP é:</h3>
+                        <div class="ip-value" id="currentIp" aria-live="polite">
+                            <span class="fade-in">192.168.1.100</span>
+                        </div>
+                        <button id="copyIpBtn" class="btn btn-secondary" aria-label="Copiar endereço IP">
+                            📋 Copiar IP
+                        </button>
+                    </div>
+                    
+                    <div class="ip-card">
+                        <h3 class="ip-label">IP Reverso:</h3>
+                        <div class="ip-value" id="reverseIp" aria-live="polite">
+                            <span class="fade-in">demo.meuip.com.br</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional IP Info -->
+                <div class="ip-details" id="ipDetails" aria-live="polite">
+                    <div class="detail-item">
+                        <span class="detail-label">Provedor:</span>
+                        <span class="detail-value" id="provider">Vivo Fibra S.A.</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Localização:</span>
+                        <span class="detail-value" id="location">São Paulo, SP, Brasil</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- History Section -->
+            <section class="history-section" aria-labelledby="history-title">
+                <div class="section-header">
+                    <h2 id="history-title">Seu Histórico de IPs e Provedores</h2>
+                    <button id="clearHistoryBtn" class="btn btn-danger" aria-label="Limpar histórico de IPs">
+                        🗑️ Limpar Histórico
+                    </button>
+                </div>
+                
+                <div class="table-container">
+                    <table class="history-table" role="table" aria-label="Histórico de endereços IP">
+                        <thead>
+                            <tr>
+                                <th scope="col">Dia - Hora</th>
+                                <th scope="col">Seu IP</th>
+                                <th scope="col">Provedor</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody">
+                            <tr class="fade-in">
+                                <td>16/09/2025 - 16:45</td>
+                                <td><strong>192.168.1.100</strong></td>
+                                <td>Vivo Fibra S.A.</td>
+                            </tr>
+                            <tr class="fade-in" style="animation-delay: 0.1s;">
+                                <td>16/09/2025 - 14:30</td>
+                                <td><strong>10.0.0.50</strong></td>
+                                <td>NET Virtua</td>
+                            </tr>
+                            <tr class="fade-in" style="animation-delay: 0.2s;">
+                                <td>15/09/2025 - 09:15</td>
+                                <td><strong>201.23.45.67</strong></td>
+                                <td>Tim Live</td>
+                            </tr>
+                            <tr class="fade-in" style="animation-delay: 0.3s;">
+                                <td>14/09/2025 - 18:20</td>
+                                <td><strong>189.12.34.56</strong></td>
+                                <td>Oi Fibra</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+        <div class="container">
+            <p class="footer-text">
+                <strong>Privacidade:</strong> Suas informações de IP são armazenadas apenas localmente no seu navegador. 
+                Nenhum dado é enviado ou armazenado permanentemente em nossos servidores.
+            </p>
+            <p class="footer-text">
+                Powered by <a href="https://ipinfo.io" target="_blank" rel="noopener noreferrer">IPinfo.io</a> | 
+                <strong>Modo Demonstração</strong> - Dados simulados para fins de teste
+            </p>
+        </div>
+    </footer>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" aria-hidden="true">
+        <div class="loading-spinner"></div>
+        <p>Carregando informações...</p>
+    </div>
+
+    <!-- Demo JavaScript -->
+    <script>
+        // Dados simulados para demonstração
+        const demoData = {
+            ip: '192.168.1.100',
+            hostname: 'demo.meuip.com.br',
+            org: 'Vivo Fibra S.A.',
+            city: 'São Paulo',
+            region: 'SP',
+            country: 'Brasil'
+        };
+
+        // Elementos DOM
+        const elements = {
+            currentIp: document.getElementById('currentIp'),
+            reverseIp: document.getElementById('reverseIp'),
+            provider: document.getElementById('provider'),
+            location: document.getElementById('location'),
+            historyTableBody: document.getElementById('historyTableBody'),
+            refreshBtn: document.getElementById('refreshBtn'),
+            copyIpBtn: document.getElementById('copyIpBtn'),
+            clearHistoryBtn: document.getElementById('clearHistoryBtn'),
+            loadingOverlay: document.getElementById('loadingOverlay')
+        };
+
+        // Simula carregamento
+        function simulateLoading() {
+            elements.loadingOverlay.classList.add('active');
+            elements.refreshBtn.disabled = true;
+            
+            setTimeout(() => {
+                elements.loadingOverlay.classList.remove('active');
+                elements.refreshBtn.disabled = false;
+                showNotification('Informações atualizadas com sucesso! (Demo)', 'success');
+            }, 1500);
+        }
+
+        // Copia IP para clipboard
+        async function copyIPToClipboard() {
+            try {
+                await navigator.clipboard.writeText(demoData.ip);
+                showNotification('IP copiado para a área de transferência!', 'success');
+            } catch (error) {
+                // Fallback para navegadores mais antigos
+                const textArea = document.createElement('textarea');
+                textArea.value = demoData.ip;
+                textArea.style.position = 'fixed';
+                textArea.style.opacity = '0';
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showNotification('IP copiado para a área de transferência!', 'success');
+            }
+        }
+
+        // Limpa histórico (demo)
+        function clearHistory() {
+            if (confirm('Tem certeza que deseja limpar todo o histórico de IPs?')) {
+                elements.historyTableBody.innerHTML = `
+                    <tr class="empty-state">
+                        <td colspan="3">Histórico limpo! (Demo) - Recarregue a página para restaurar os dados de exemplo.</td>
+                    </tr>
+                `;
+                showNotification('Histórico limpo com sucesso! (Demo)', 'success');
+            }
+        }
+
+        // Exibe notificação
+        function showNotification(message, type = 'info') {
+            const existingNotifications = document.querySelectorAll('.notification');
+            existingNotifications.forEach(notification => notification.remove());
+            
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.textContent = message;
+            
+            Object.assign(notification.style, {
+                position: 'fixed',
+                top: '20px',
+                right: '20px',
+                padding: '12px 24px',
+                borderRadius: '8px',
+                color: 'white',
+                fontWeight: '500',
+                zIndex: '1001',
+                transform: 'translateX(100%)',
+                transition: 'transform 0.3s ease-in-out',
+                maxWidth: '300px',
+                wordWrap: 'break-word',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
+            });
+            
+            const colors = {
+                success: '#059669',
+                error: '#dc2626',
+                info: '#2563eb'
+            };
+            
+            notification.style.backgroundColor = colors[type] || colors.info;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.remove();
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Event listeners
+        elements.refreshBtn.addEventListener('click', simulateLoading);
+        elements.copyIpBtn.addEventListener('click', copyIPToClipboard);
+        elements.clearHistoryBtn.addEventListener('click', clearHistory);
+
+        // Atalhos de teclado
+        document.addEventListener('keydown', (event) => {
+            if ((event.ctrlKey || event.metaKey) && event.key === 'r') {
+                event.preventDefault();
+                simulateLoading();
+            }
+            
+            if ((event.ctrlKey || event.metaKey) && event.key === 'c' && !window.getSelection().toString()) {
+                event.preventDefault();
+                copyIPToClipboard();
+            }
+        });
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', () => {
+            showNotification('Demonstração carregada! Teste todas as funcionalidades.', 'info');
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Meta Tags -->
+    <title>Meu IP - Descubra seu endereço IP e histórico de conexões</title>
+    <meta name="description" content="Descubra seu endereço IP atual, IP reverso e acompanhe o histórico de suas conexões com informações detalhadas sobre provedores de internet.">
+    <meta name="keywords" content="meu ip, endereço ip, ip reverso, histórico ip, provedor internet, ipinfo">
+    <meta name="author" content="Meu IP Webapp">
+    
+    <!-- Open Graph Tags -->
+    <meta property="og:title" content="Meu IP - Descubra seu endereço IP e histórico de conexões">
+    <meta property="og:description" content="Descubra seu endereço IP atual, IP reverso e acompanhe o histórico de suas conexões com informações detalhadas sobre provedores de internet.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://meu-ip.com">
+    <meta property="og:image" content="https://meu-ip.com/og-image.png">
+    <meta property="og:locale" content="pt_BR">
+    
+    <!-- Twitter Card Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Meu IP - Descubra seu endereço IP e histórico de conexões">
+    <meta name="twitter:description" content="Descubra seu endereço IP atual, IP reverso e acompanhe o histórico de suas conexões com informações detalhadas sobre provedores de internet.">
+    <meta name="twitter:image" content="https://meu-ip.com/og-image.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://meu-ip.com">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- JSON-LD Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Meu IP",
+        "description": "Descubra seu endereço IP atual, IP reverso e acompanhe o histórico de suas conexões",
+        "url": "https://meu-ip.com",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://meu-ip.com/?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+        }
+    }
+    </script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">🌐 Meu IP</h1>
+            <nav class="nav" role="navigation" aria-label="Navegação principal">
+                <button id="refreshBtn" class="btn btn-primary" aria-label="Atualizar informações do IP">
+                    🔄 Atualizar IP
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main" role="main">
+        <div class="container">
+            <!-- IP Information Section -->
+            <section class="ip-section" aria-labelledby="ip-info-title">
+                <h2 id="ip-info-title" class="sr-only">Informações do seu IP</h2>
+                
+                <!-- Current IP Display -->
+                <div class="ip-display">
+                    <div class="ip-card">
+                        <h3 class="ip-label">O meu IP é:</h3>
+                        <div class="ip-value" id="currentIp" aria-live="polite">
+                            <span class="loading">Carregando...</span>
+                        </div>
+                        <button id="copyIpBtn" class="btn btn-secondary" aria-label="Copiar endereço IP">
+                            📋 Copiar IP
+                        </button>
+                    </div>
+                    
+                    <div class="ip-card">
+                        <h3 class="ip-label">IP Reverso:</h3>
+                        <div class="ip-value" id="reverseIp" aria-live="polite">
+                            <span class="loading">Carregando...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional IP Info -->
+                <div class="ip-details" id="ipDetails" aria-live="polite">
+                    <div class="detail-item">
+                        <span class="detail-label">Provedor:</span>
+                        <span class="detail-value" id="provider">—</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Localização:</span>
+                        <span class="detail-value" id="location">—</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- History Section -->
+            <section class="history-section" aria-labelledby="history-title">
+                <div class="section-header">
+                    <h2 id="history-title">Seu Histórico de IPs e Provedores</h2>
+                    <button id="clearHistoryBtn" class="btn btn-danger" aria-label="Limpar histórico de IPs">
+                        🗑️ Limpar Histórico
+                    </button>
+                </div>
+                
+                <div class="table-container">
+                    <table class="history-table" role="table" aria-label="Histórico de endereços IP">
+                        <thead>
+                            <tr>
+                                <th scope="col">Dia - Hora</th>
+                                <th scope="col">Seu IP</th>
+                                <th scope="col">Provedor</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody">
+                            <tr class="empty-state">
+                                <td colspan="3">Nenhum histórico encontrado. Atualize a página para começar a registrar.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+        <div class="container">
+            <p class="footer-text">
+                <strong>Privacidade:</strong> Suas informações de IP são armazenadas apenas localmente no seu navegador. 
+                Nenhum dado é enviado ou armazenado permanentemente em nossos servidores.
+            </p>
+            <p class="footer-text">
+                Powered by <a href="https://ipinfo.io" target="_blank" rel="noopener noreferrer">IPinfo.io</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" aria-hidden="true">
+        <div class="loading-spinner"></div>
+        <p>Carregando informações...</p>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>
+
